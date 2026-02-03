@@ -190,6 +190,60 @@
       .heart, .float-heart{ animation:none !important; }
       .btn{ transition:none; }
     }
+.note{
+  display:none;
+  margin-top:20px;
+  padding:22px;
+  border-radius:20px;
+  background:rgba(255,255,255,.55);
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow: 0 14px 36px rgba(0,0,0,.15);
+  text-align:center;
+  animation: fadeUp .6s ease forwards;
+}
+
+.note h2{
+  margin:0 0 14px;
+  font-size:clamp(22px, 3.4vw, 30px);
+}
+
+.note-list{
+  list-style:none;
+  padding:0;
+  margin:0;
+  text-align:left;
+}
+
+.note-list li{
+  background:rgba(255,255,255,.65);
+  padding:14px 16px;
+  border-radius:16px;
+  margin-bottom:12px;
+  line-height:1.35;
+  font-size:16px;
+}
+
+.note-list .num{
+  font-weight:800;
+  margin-right:6px;
+}
+
+.note-list .meta{
+  font-size:13px;
+  opacity:.8;
+}
+
+.note-footer{
+  margin-top:14px;
+  font-size:14px;
+  opacity:.85;
+}
+
+@keyframes fadeUp{
+  from{ opacity:0; transform: translateY(10px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+
   </style>
 </head>
 <body>
@@ -207,10 +261,36 @@
       <button class="btn" id="noBtn" type="button" aria-label="No (but it dodges)">No 🙃</button>
     </div>
 
-    <div class="result" id="result" role="status" aria-live="polite">
-      <h2 id="resultTitle">YAYYYYY! 💘✨</h2>
-      <p id="resultText">Thanks I love you! Be ready. Wear sumn sexy😬</p>
-    </div>
+<div class="result" id="result" role="status" aria-live="polite">
+  <h2>YAYYYYY! 💘✨</h2>
+  <p>Okay… now read this carefully 👀</p>
+</div>
+
+<div class="note" id="note">
+  <h2>💌 Important Valentine Note 💌</h2>
+
+  <ul class="note-list">
+    <li>
+      <span class="num">1.</span>
+      Collect donuts from outside 🍩
+    </li>
+    <li>
+      <span class="num">2.</span>
+      We have a reservation for <strong>RH Rooftop</strong><br/>
+      <span class="meta">📅 13th November · ⏰ 4:00 PM</span><br/>
+      Be ready and wear sumn sexy 😌
+    </li>
+    <li>
+      <span class="num">3.</span>
+      We have a reservation at <strong>Vidrio</strong><br/>
+      <span class="meta">📅 14th November · ⏰ 10:00 PM</span><br/>
+      Be ready and wear sumn sexy… a lil tight 🖤
+    </li>
+  </ul>
+
+  <p class="note-footer">No objections accepted. Valentine rules apply 💕</p>
+</div>
+
 
     <p class="hint" id="hint">try clicking “No” hehe 😇</p>
     <div class="footer" id="footer">I love you 💞</div>
@@ -509,25 +589,27 @@ function setBtnPos(btn, xPct, yPct){
     }
 
     yesBtn.addEventListener("click", () => {
-      if (accepted) return;
-      accepted = true;
+  if (accepted) return;
+  accepted = true;
 
-      subtitle.textContent = "Correct answer 😌💖";
-      resultTitle.textContent = COPY.yesCelebrateTitle;
-      resultText.textContent  = COPY.yesCelebrateText;
-      result.style.display = "block";
+  subtitle.textContent = "Correct answer 😌💖";
 
-      // Disable dodging interactions
-      noBtn.disabled = true;
-      noBtn.style.opacity = .45;
-      noBtn.style.cursor = "not-allowed";
+  // Hide the question UI
+  stage.style.display = "none";
+  document.querySelector(".hint").style.display = "none";
 
-      yesBtn.style.transform = "translate(-50%, -50%) scale(1.15)";
-      yesBtn.style.boxShadow = "0 16px 42px rgba(255,45,85,.45)";
+  // Show celebration
+  result.style.display = "block";
 
-      doConfetti();
-      burstHearts(18);
-    });
+  doConfetti();
+  burstHearts(18);
+
+  // Show the note after a short pause
+  setTimeout(() => {
+    document.getElementById("note").style.display = "block";
+  }, 900);
+});
+
 
     // Background hearts generation
     (function makeBackgroundHearts(){
