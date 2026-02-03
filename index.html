@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Will you be my Valentine? 💘</title>
+  <style>
+    :root{
+      --bg1:#ff9a9e;
+      --bg2:#fad0c4;
+      --card:#ffffffcc;
+      --text:#2b2b2b;
+      --yes:#ff2d55;
+      --yes2:#ff5f7e;
+      --no:#2f2f2f;
+      --shadow: 0 18px 50px rgba(0,0,0,.18);
+      --radius: 22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100svh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 20%, rgba(255,255,255,.45), transparent 60%),
+        radial-gradient(1000px 700px at 80% 10%, rgba(255,255,255,.35), transparent 55%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow:hidden;
+      padding:20px;
+    }
+
+    /* floating hearts background */
+    .heart{
+      position:fixed;
+      width:16px; height:16px;
+      transform: rotate(45deg);
+      opacity:.18;
+      filter: blur(.2px);
+      pointer-events:none;
+      animation: drift linear infinite;
+    }
+    .heart:before, .heart:after{
+      content:"";
+      position:absolute;
+      width:16px; height:16px;
+      border-radius:50%;
+      background: rgba(255,255,255,.85);
+      top:-8px; left:0;
+    }
+    .heart:after{ left:-8px; top:0 }
+    @keyframes drift{
+      from{ transform:translateY(110svh) rotate(45deg) scale(var(--s,1)); }
+      to  { transform:translateY(-20svh) rotate(45deg) scale(var(--s,1)); }
+    }
+
+    .card{
+      width:min(560px, 96vw);
+      background:var(--card);
+      border:1px solid rgba(255,255,255,.6);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px 22px 22px;
+      backdrop-filter: blur(10px);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .badge{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.55);
+      border:1px solid rgba(255,255,255,.7);
+      font-size:13px;
+      user-select:none;
+    }
+
+    h1{
+      margin:14px 0 8px;
+      font-size:clamp(30px, 4.2vw, 44px);
+      line-height:1.1;
+      letter-spacing:-.02em;
+      text-align:center;
+    }
+    .sub{
+      margin:0 0 18px;
+      text-align:center;
+      font-size:clamp(15px, 2.2vw, 18px);
+      opacity:.9;
+      min-height: 1.3em;
+    }
+
+    .stage{
+      position:relative;
+      height:170px;
+      margin-top:10px;
+      border-radius:18px;
+      background:rgba(255,255,255,.35);
+      border:1px dashed rgba(255,255,255,.65);
+      overflow:hidden;
+    }
+
+    .btn{
+      position:absolute;
+      top:50%;
+      transform: translate(-50%, -50%);
+      border:none;
+      border-radius:999px;
+      padding:14px 22px;
+      font-size:18px;
+      font-weight:800;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      touch-action: manipulation;
+    }
+    .btn:active{ transform: translate(-50%, -50%) scale(.97); }
+
+    #yesBtn{
+      left:33%;
+      background: linear-gradient(135deg, var(--yes), var(--yes2));
+      color:white;
+    }
+    #yesBtn:hover{ filter: brightness(1.02); box-shadow: 0 12px 30px rgba(255,45,85,.35); }
+
+    #noBtn{
+      left:67%;
+      background: rgba(25,25,25,.95);
+      color:white;
+    }
+
+    .hint{
+      margin:16px 0 0;
+      text-align:center;
+      font-size:13px;
+      opacity:.85;
+    }
+
+    .result{
+      display:none;
+      text-align:center;
+      margin-top:18px;
+      padding:16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.5);
+      border:1px solid rgba(255,255,255,.7);
+    }
+    .result h2{
+      margin:0 0 6px;
+      font-size:clamp(24px, 3.6vw, 32px);
+      letter-spacing:-.02em;
+    }
+    .result p{ margin:0; font-size:16px; opacity:.95; }
+
+    /* floating heart burst */
+    .float-heart{
+      position:fixed;
+      left:50%;
+      top:60%;
+      font-size:22px;
+      pointer-events:none;
+      animation: pop 1.2s ease forwards;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,.18));
+    }
+    @keyframes pop{
+      0%{ transform:translate(-50%,-50%) scale(.7); opacity:0; }
+      20%{ opacity:1; }
+      100%{ transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.25); opacity:0; }
+    }
+
+    /* tiny footer */
+    .footer{
+      margin-top:14px;
+      text-align:center;
+      font-size:12px;
+      opacity:.7;
+      user-select:none;
+    }
+
+    /* reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .heart, .float-heart{ animation:none !important; }
+      .btn{ transition:none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background hearts container -->
+  <div id="bgHearts" aria-hidden="true"></div>
+
+  <main class="card">
+    <div class="badge">💌 <span id="badgeText">Hi Priyanka Maanya my baby</span></div>
+
+    <h1 id="title">Will you be my Valentine? 💘</h1>
+    <p class="sub" id="subtitle">Choose wisely…</p>
+
+    <div class="stage" id="stage" aria-label="Valentine choice area">
+      <button class="btn" id="yesBtn" type="button">Yes 💖</button>
+      <button class="btn" id="noBtn" type="button" aria-label="No (but it dodges)">No 🙃</button>
+    </div>
+
+    <div class="result" id="result" role="status" aria-live="polite">
+      <h2 id="resultTitle">YAYYYYY! 💘✨</h2>
+      <p id="resultText">Thanks I love you! Be ready. Wear sumn sexy😬</p>
+    </div>
+
+    <p class="hint" id="hint">try clicking “No” hehe 😇</p>
+    <div class="footer" id="footer">I love you 💞</div>
+  </main>
+
+  <!-- Optional confetti library (CDN). If blocked/offline, we fallback to hearts. -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
+
+  <script>
+    // =========================
+    // Customization knobs (see bottom for line pointers)
+    // =========================
+    const COPY = {
+      subtitleIdle: "Choose wisely…",
+      dodgeLines: [
+        "Are you sure? 👀",
+        "Nope nope nope 😌",
+        "Pleaseee? 🥺",
+        "Don’t do this 😭",
+        "You're breaking my heart!!! 💔",
+        "Think again, cutie 😤",
+        "My heart can’t take it 😵‍💫",
+        "Wrong button, boo 😇"
+      ],
+      yesCelebrateTitle: "YAYYYYY! 💘✨",
+      yesCelebrateText: "Thanks I love you! Be ready. Wear sumn sexy😬",
+      badge: "Hi Priyanka Maanya my baby"
+    };
+
+    // ===== Elements
+    const stage = document.getElementById("stage");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn  = document.getElementById("noBtn");
+    const subtitle = document.getElementById("subtitle");
+    const result = document.getElementById("result");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultText  = document.getElementById("resultText");
+    const badgeText   = document.getElementById("badgeText");
+
+    badgeText.textContent = COPY.badge;
+    subtitle.textContent = COPY.subtitleIdle;
+
+    // ===== State
+    let dodges = 0;
+    let accepted = false;
+    let yesScale = 1;
+
+    // ===== Helpers
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+    function stageRect(){
+      return stage.getBoundingClientRect();
+    }
+
+    function btnRect(btn){
+      return btn.getBoundingClientRect();
+    }
+
+function setBtnPos(btn, xPct, yPct){
+  btn.dataset.x = xPct;
+  btn.dataset.y = yPct;
+  btn.style.left = xPct + "%";
+  btn.style.top  = yPct + "%";
+
+  // Preserve scale for Yes button
+  const scale =
+    btn.id === "yesBtn" ? yesScale : 1;
+
+  btn.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+
+
+    // Start positions (percent within stage)
+    setBtnPos(yesBtn, 33, 50);
+    setBtnPos(noBtn,  67, 50);
+
+    function randomLine(){
+      return COPY.dodgeLines[Math.floor(Math.random() * COPY.dodgeLines.length)];
+    }
+
+    function growYes(){
+  // Increase scale gradually
+ yesScale = Math.min(1 + dodges * 0.12, 2.2);
+
+
+  // Re-apply position so scale sticks
+  const x = parseFloat(yesBtn.dataset.x || 33);
+  const y = parseFloat(yesBtn.dataset.y || 50);
+  setBtnPos(yesBtn, x, y);
+
+  // Stronger visual emphasis
+  yesBtn.style.boxShadow =
+    `0 18px 44px rgba(255,45,85,${Math.min(0.35 + dodges * 0.08, 0.85)})`;
+
+  // Slowly invade No's territory 😈
+  const newX = 33 + Math.min(dodges * 3, 22);
+  setBtnPos(yesBtn, newX, 50);
+}
+
+
+    function pickSafeSpotAwayFromPointer(pointerClientX, pointerClientY){
+      // Choose a new (x,y) inside stage in % where No won't collide with Yes,
+      // and also tries to move away from the pointer.
+      const rStage = stageRect();
+      const padding = 18; // px from edges
+      const attempts = 30;
+
+      const yesR = btnRect(yesBtn);
+      const yesCenter = { x: yesR.left + yesR.width/2, y: yesR.top + yesR.height/2 };
+
+      function toPct(cx, cy){
+        const x = ((cx - rStage.left) / rStage.width) * 100;
+        const y = ((cy - rStage.top)  / rStage.height) * 100;
+        return { x, y };
+      }
+      function fromPct(x, y){
+        return { cx: rStage.left + (x/100)*rStage.width, cy: rStage.top + (y/100)*rStage.height };
+      }
+      function dist(ax, ay, bx, by){
+        const dx = ax-bx, dy = ay-by;
+        return Math.hypot(dx, dy);
+      }
+
+      // Desired direction: away from pointer
+      const stageCenter = { x: rStage.left + rStage.width/2, y: rStage.top + rStage.height/2 };
+      const away = {
+        x: stageCenter.x + (stageCenter.x - pointerClientX),
+        y: stageCenter.y + (stageCenter.y - pointerClientY),
+      };
+
+      // Weighted candidates: corners/edges + random points
+      const candidates = [
+        { x: 15, y: 25 }, { x: 85, y: 25 }, { x: 15, y: 75 }, { x: 85, y: 75 },
+        { x: 20, y: 50 }, { x: 80, y: 50 }, { x: 50, y: 25 }, { x: 50, y: 75 },
+      ];
+
+      // Add a directionally-biased candidate away from pointer
+      const awayPct = toPct(
+        clamp(away.x, rStage.left+padding, rStage.right-padding),
+        clamp(away.y, rStage.top+padding,  rStage.bottom-padding)
+      );
+      candidates.push({ x: awayPct.x, y: awayPct.y });
+
+      for (let i=0; i<attempts; i++){
+        candidates.push({
+          x: 10 + Math.random()*80,
+          y: 18 + Math.random()*64
+        });
+      }
+
+      // Score: far from pointer, far from yes center, within bounds
+      let best = null;
+      let bestScore = -Infinity;
+
+      const pointer = { x: pointerClientX, y: pointerClientY };
+
+      for (const c of candidates){
+        const p = fromPct(c.x, c.y);
+
+        // keep inside padded bounds
+        const inBounds =
+          p.cx >= rStage.left+padding &&
+          p.cx <= rStage.right-padding &&
+          p.cy >= rStage.top+padding &&
+          p.cy <= rStage.bottom-padding;
+
+        if (!inBounds) continue;
+
+        const dPointer = dist(p.cx, p.cy, pointer.x, pointer.y);
+        const dYes = dist(p.cx, p.cy, yesCenter.x, yesCenter.y);
+
+        // Avoid overlapping Yes (roughly)
+        if (dYes < Math.max(yesR.width, yesR.height) * 0.75) continue;
+
+        const score = dPointer * 1.2 + dYes * 0.9;
+        if (score > bestScore){
+          bestScore = score;
+          best = c;
+        }
+      }
+
+      return best || { x: 85, y: 75 };
+    }
+
+    function dodge(pointerClientX, pointerClientY){
+      if (accepted) return;
+
+      dodges += 1;
+      subtitle.textContent = randomLine();
+
+      // Make "No" extra slippery over time
+      const newPos = pickSafeSpotAwayFromPointer(pointerClientX, pointerClientY);
+      setBtnPos(noBtn, newPos.x, newPos.y);
+
+      // Grow/guard "Yes"
+      growYes();
+
+      // Occasionally make No smaller (psychological defeat)
+      if (dodges >= 6){
+        const shrink = clamp(1 - (dodges-5)*0.03, 0.72, 1);
+        noBtn.style.transform = `translate(-50%, -50%) scale(${shrink.toFixed(2)})`;
+      }
+
+      // Safety: prevent accidental click if user somehow lands on it during move
+      noBtn.style.pointerEvents = "auto";
+    }
+
+    // Desktop: move when mouse gets near
+    function handlePointerMove(e){
+      if (accepted) return;
+
+      const isTouchLike = e.pointerType === "touch";
+      // For touch, we handle separately
+      if (isTouchLike) return;
+
+      const rNo = btnRect(noBtn);
+      const cx = rNo.left + rNo.width/2;
+      const cy = rNo.top  + rNo.height/2;
+
+      const distance = Math.hypot(e.clientX - cx, e.clientY - cy);
+
+      // Threshold grows with attempts (more aggressive dodging)
+      const threshold = clamp(120 - dodges*6, 55, 120);
+
+      if (distance < threshold){
+        dodge(e.clientX, e.clientY);
+      }
+    }
+
+    // Mobile: dodge on touchstart near No OR when finger enters stage
+    function handleTouchish(e){
+      if (accepted) return;
+
+      const touches = e.touches && e.touches[0] ? e.touches[0] : null;
+      const point = touches ? { x: touches.clientX, y: touches.clientY } : { x: e.clientX, y: e.clientY };
+
+      // If touch is close to No, dodge immediately and prevent default tap
+      const rNo = btnRect(noBtn);
+      const cx = rNo.left + rNo.width/2;
+      const cy = rNo.top  + rNo.height/2;
+
+      const distance = Math.hypot(point.x - cx, point.y - cy);
+
+      const threshold = clamp(140 - dodges*7, 70, 140);
+      if (distance < threshold){
+        e.preventDefault();
+        dodge(point.x, point.y);
+      }
+    }
+
+    // Hardcore: if No gets a click event, we intercept and dodge anyway
+    noBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const r = btnRect(noBtn);
+      dodge(r.left + r.width/2, r.top + r.height/2);
+    });
+
+    // Pointer/mouse behaviors
+    window.addEventListener("pointermove", handlePointerMove, { passive:true });
+
+    // Touch behaviors (stage-level to catch near misses)
+    stage.addEventListener("touchstart", handleTouchish, { passive:false });
+    stage.addEventListener("touchmove",  handleTouchish, { passive:false });
+    noBtn.addEventListener("touchstart", handleTouchish, { passive:false });
+    noBtn.addEventListener("touchmove",  handleTouchish, { passive:false });
+
+    // YES celebration
+    function burstHearts(count=14){
+      const emojis = ["💖","💘","💝","💞","💕","💗","✨"];
+      for (let i=0;i<count;i++){
+        const el = document.createElement("div");
+        el.className = "float-heart";
+        el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        el.style.setProperty("--dx", (Math.random()*360 - 180) + "px");
+        el.style.setProperty("--dy", (-(Math.random()*320 + 120)) + "px");
+        el.style.left = (50 + (Math.random()*18 - 9)) + "%";
+        el.style.top = (60 + (Math.random()*12 - 6)) + "%";
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1300);
+      }
+    }
+
+    function doConfetti(){
+      // If canvas-confetti loaded, use it. Otherwise fallback to hearts.
+      if (typeof confetti === "function"){
+        const end = Date.now() + 900;
+        (function frame(){
+          confetti({ particleCount: 5, spread: 70, origin: { x: 0.2, y: 0.6 }});
+          confetti({ particleCount: 5, spread: 70, origin: { x: 0.8, y: 0.6 }});
+          if (Date.now() < end) requestAnimationFrame(frame);
+        })();
+      } else {
+        burstHearts(22);
+      }
+    }
+
+    yesBtn.addEventListener("click", () => {
+      if (accepted) return;
+      accepted = true;
+
+      subtitle.textContent = "Correct answer 😌💖";
+      resultTitle.textContent = COPY.yesCelebrateTitle;
+      resultText.textContent  = COPY.yesCelebrateText;
+      result.style.display = "block";
+
+      // Disable dodging interactions
+      noBtn.disabled = true;
+      noBtn.style.opacity = .45;
+      noBtn.style.cursor = "not-allowed";
+
+      yesBtn.style.transform = "translate(-50%, -50%) scale(1.15)";
+      yesBtn.style.boxShadow = "0 16px 42px rgba(255,45,85,.45)";
+
+      doConfetti();
+      burstHearts(18);
+    });
+
+    // Background hearts generation
+    (function makeBackgroundHearts(){
+      const container = document.getElementById("bgHearts");
+      const count = 16;
+      for (let i=0;i<count;i++){
+        const h = document.createElement("div");
+        h.className = "heart";
+        const left = Math.random()*100;
+        const dur = 10 + Math.random()*14;
+        const delay = -Math.random()*dur;
+        h.style.left = left + "vw";
+        h.style.animationDuration = dur + "s";
+        h.style.animationDelay = delay + "s";
+        h.style.setProperty("--s", (0.7 + Math.random()*1.4).toFixed(2));
+        container.appendChild(h);
+      }
+    })();
+  </script>
+</body>
+</html>
